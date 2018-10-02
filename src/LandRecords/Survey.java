@@ -10,6 +10,9 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.io.*;
+import java.sql.Connection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -262,9 +265,21 @@ public class Survey extends JFrame
         {
            public void actionPerformed(ActionEvent a)
            {
-               DatabaseConnector.connectToDB();
+               Server.connectToDB();
                JOptionPane.showMessageDialog(null, "Clicked");
-               DatabaseConnector.closeConnection();
+                Map<String,String> hm = new HashMap<String,String>();
+
+                hm.put("LandID", landid.getText());
+                hm.put("LandType", type.getSelectedItem().toString());
+                hm.put("Area", area.getText());
+                hm.put("Address", address.getText());
+                hm.put("State", ((String) state.getSelectedItem()).substring(3));
+                hm.put("City", (String) city.getSelectedItem());
+
+                Server.connectToDB();
+                SurveyDB.addLand(hm);
+
+                Server.closeConnection();
            }
         });
         

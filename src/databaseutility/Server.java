@@ -14,19 +14,19 @@ import java.io.*;
  *
  * @author akash
  */
-public class DatabaseConnector 
+public class Server
 {
     static Connection conn = null;
     
     public static void connectToDB()
     {
         final String jdbcdriver = "com.mysql.jdbc.Driver";
-        final  String url = "jdbc:mysql://localhost:3306/akashdb";
+        final  String url = "jdbc:mysql://localhost:3306/LandRecords";
         
         try
         {
             Class.forName(jdbcdriver);
-            conn = DriverManager.getConnection(url,"akash","akash@13");
+            conn = DriverManager.getConnection(url,"root","anujk1998");
         }
         catch(ClassNotFoundException e)
         {
@@ -50,8 +50,16 @@ public class DatabaseConnector
         }
     }
     
-    public static void checkLogin(String username ,String password)
+    public static boolean checkLogin(String username ,String password) throws SQLException
     {
+        String sql = "SELECT * FROM Login where Username = ? AND Password = ?";
         
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setString(1, username);
+        ps.setString(2, password);
+        
+        boolean check = ps.execute();
+        
+        return check;
     }
 }

@@ -10,6 +10,9 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.io.*;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -231,7 +234,14 @@ public class Login extends JFrame
         {
             public void actionPerformed(ActionEvent e)
             {
-                checklogin(); 
+                try 
+                { 
+                    checkLogin();
+                }
+                catch (SQLException ex) 
+                {
+                    //Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
         
@@ -262,28 +272,47 @@ public class Login extends JFrame
             setVisible(false);
     }
     
-    void checklogin()
+    void checkLogin() throws SQLException
     {
         
         String var_username = new String();
         String var_password = new String(password.getPassword());
         var_username = username.getText();
         
-        DatabaseConnector.connectToDB();
+        Server.connectToDB();
+        boolean valid = Server.checkLogin(var_username, var_password);
+        
+        if(valid)
+        {
+            String dept = var_username.substring(0, 3);
+            switch(dept)
+            {
+                case "REG":
+                    Registration r = new Registration();
+                    r.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                    r.setSize(700, 700);
+                    r.setExtendedState(MAXIMIZED_BOTH);
+                    r.setVisible(true);
+                    break;
+                    
+                case "SUR":
+                    Survey s = new Survey(this , var_username);
+                    s.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                    s.setSize(700, 700);
+                    s.setExtendedState(MAXIMIZED_BOTH);
+                    s.setVisible(true);
+                    break;
+                    
+                default:
+                    JOptionPane.showMessageDialog(this, "Invalid Username or Password", "Error",JOptionPane.ERROR_MESSAGE);
+                    break;                    
+            }
+        }
+        
+        username.setText("");
+        password.setText("");
                
-        Survey s = new Survey(this , var_username);
-        s.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        s.setSize(700, 700);
-        s.setExtendedState(MAXIMIZED_BOTH);
-        s.setVisible(true);
-        /*        
-        Registration r= new Registration();
-        r.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        r.setSize(700, 700);
-        r.setExtendedState(MAXIMIZED_BOTH);
-        r.setVisible(true);
-          */    
-        DatabaseConnector.closeConnection();
+        Server.closeConnection();
     }
     
     public static void main(String args[])
