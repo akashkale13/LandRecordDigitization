@@ -1,0 +1,297 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package LandRecords;
+
+import databaseutility.*;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import java.io.*;
+
+/**
+ *
+ * @author akash
+ */
+public class Login extends JFrame
+{
+    //top panel variables
+    JPanel toppanel;
+    JLabel title;
+            
+    //middle panel variables
+    JPanel middlepanel;
+    JPanel choicepanel;
+    JPanel choicelist;
+    JPanel loginpanel;
+    JPanel aboutuspanel;
+    JPanel contactuspanel;
+    JPanel imagepanel;
+    
+    JLabel homelabel;
+    JLabel loginlabel;
+    JLabel contactuslabel;
+    JLabel aboutuslabel;
+    
+    JLabel usernamelabel;
+    JLabel passwordlabel;
+    JTextField username;
+    JPasswordField password;
+    JLabel or;
+    JLabel guestlogin;
+    JButton loginbutton; 
+    
+    //bottom panel variables
+    JPanel bottompanel;
+    JLabel conf_server;
+        
+    public Login()
+    {
+        instantiate();
+    }
+    
+    void instantiate()
+    {
+        //top panel variables
+        toppanel = new JPanel();
+        toppanel.setPreferredSize(new Dimension(0, 100));
+        toppanel.setBackground(new Color(52, 69, 150));
+ 
+        title = new JLabel("LAND RECORD PORTAL");
+        title.setForeground(Color.WHITE);
+        title.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 19));
+        
+        toppanel.setLayout(new BorderLayout());
+        toppanel.add(title,BorderLayout.CENTER);
+        
+        //middle panel variables
+        middlepanel = new JPanel();
+        choicepanel = new JPanel();
+        loginpanel = new JPanel();
+        contactuspanel = new JPanel();
+        aboutuspanel = new JPanel();
+        choicelist = new JPanel();
+        imagepanel = new JPanel();
+        
+        homelabel = new JLabel("Home" , JLabel.CENTER);
+        loginlabel = new JLabel("Login" , JLabel.CENTER);
+        contactuslabel = new JLabel("Contact Us " , JLabel.CENTER);
+        aboutuslabel = new JLabel("About Us" , JLabel.CENTER);
+        
+        usernamelabel = new JLabel("Username");
+        passwordlabel = new JLabel("Password");
+        username = new JTextField();
+        password = new JPasswordField();
+        loginbutton = new JButton("Login");
+        or = new JLabel("OR");
+        guestlogin = new JLabel("Login as Guest");
+        
+        //design middlepanel
+        middlepanel.setLayout(new CardLayout());
+        
+        //design choicelist
+        choicelist.setBackground(new Color(43 , 122, 223));
+        
+        homelabel.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 18));
+        homelabel.setForeground(Color.WHITE);
+        
+        loginlabel.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 18));
+        loginlabel.setForeground(Color.WHITE);
+        
+        contactuslabel.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 18));
+        contactuslabel.setForeground(Color.WHITE);
+        
+        aboutuslabel.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 18));
+        aboutuslabel.setForeground(Color.WHITE);
+        
+        //add to choicepanel choicelistpanel
+        choicelist.setLayout(new GridLayout(0, 1));
+        choicelist.add(homelabel);
+        choicelist.add(loginlabel);
+        choicelist.add(contactuslabel);
+        choicelist.add(aboutuslabel);
+        
+        choicelist.setPreferredSize(new Dimension(350, 0));
+        
+        choicepanel.setLayout(new BorderLayout());
+        choicepanel.add(imagepanel, BorderLayout.CENTER);
+        choicepanel.add(choicelist ,BorderLayout.LINE_START);
+        
+        //design loginpanel
+        
+        usernamelabel.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 16));
+        username.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 15));
+        username.setPreferredSize(new Dimension(300, 40));
+        
+        passwordlabel.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 16));
+        password.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 15));
+        password.setPreferredSize(new Dimension(300, 40));
+        
+        loginbutton.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 15));
+        loginbutton.setPreferredSize(new Dimension(300, 40));
+        
+        or.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 18));
+        guestlogin.setFont(new Font(Font.SERIF, Font.PLAIN, 15));
+                
+        GridBagConstraints g;
+        
+        loginpanel.setLayout(new GridBagLayout());
+        
+        g = new GridBagConstraints();
+        g.gridx = 0;
+        g.gridy = 0;
+        g.anchor = GridBagConstraints.WEST;
+        g.insets = new Insets(5, 5, 5, 5);
+        loginpanel.add(usernamelabel, g);
+        
+        g = new GridBagConstraints();
+        g.gridx = 0;
+        g.gridy = 1;
+        g.insets = new Insets(5, 5, 5, 5);
+        loginpanel.add(username,g);
+        
+        g = new GridBagConstraints();
+        g.gridx = 0;
+        g.gridy = 2;
+        g.anchor = GridBagConstraints.WEST;
+        g.insets = new Insets(5, 5, 5, 5);
+        loginpanel.add(passwordlabel,g);
+        
+        g = new GridBagConstraints();
+        g.gridx = 0;
+        g.gridy = 3;
+        g.insets = new Insets(5, 5, 5, 5);
+        loginpanel.add(password,g);
+        
+        g = new GridBagConstraints();
+        g.gridx = 0;
+        g.gridy = 4;
+        g.insets = new Insets(5, 5, 5, 5);
+        loginpanel.add(loginbutton,g);
+                
+        g = new GridBagConstraints();
+        g.gridx = 0;
+        g.gridy = 5;
+        g.anchor = GridBagConstraints.CENTER;
+        g.insets = new Insets(5, 5, 5, 5);
+        loginpanel.add(or,g);
+        
+        g = new GridBagConstraints();
+        g.gridx = 0;
+        g.gridy = 6;
+        g.anchor = GridBagConstraints.CENTER;
+        g.insets = new Insets(5, 5, 5, 5);
+        loginpanel.add(guestlogin,g);
+        
+        
+        //design aboutuspanel
+        
+        //design contactuspanel
+        
+        //adding cards to middlepanel
+        middlepanel.add(choicepanel,"card1");
+        middlepanel.add(loginpanel,"card2");
+        
+        //bottom panel variables
+        bottompanel = new JPanel();
+        conf_server = new JLabel();
+       
+        bottompanel.setPreferredSize(new Dimension(0, 50));
+        bottompanel.setBackground(new Color(52,  69, 150));
+        bottompanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 40, 10));
+        
+        conf_server.setText("Configure Server");
+        conf_server.setForeground(new Color(255, 255, 255));
+        conf_server.setFont(new Font(Font.SANS_SERIF, Font.PLAIN , 18));
+        
+        bottompanel.add(conf_server);
+        
+        //set JFrame Layout and add components
+        setLayout(new BorderLayout());
+        
+        add(toppanel , BorderLayout.PAGE_START);
+        add(middlepanel , BorderLayout.CENTER);
+        add(bottompanel , BorderLayout.PAGE_END);
+     //   pack();
+     
+        //add listeners for middle panel choice selector
+        loginlabel.addMouseListener(new MouseAdapter() 
+        { 
+            public void mouseClicked(MouseEvent me)
+            {
+                CardLayout c = (CardLayout) middlepanel.getLayout();
+                c.show(middlepanel, "card2");
+            }
+        });
+        
+        //add listener to Login page button
+        loginbutton.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                checklogin(); 
+            }
+        });
+        
+        guestlogin.addMouseListener(new MouseAdapter()
+        {
+            public void mouseClicked(MouseEvent me)
+            {
+                guestloginlistener();
+            }
+        });
+        
+        conf_server.addMouseListener(new MouseAdapter() 
+        {
+            public void mouseClicked(MouseEvent me)
+            {
+                
+            }
+        });
+    }
+    
+    void guestloginlistener()
+    {
+            Guest g= new Guest(this);
+            g.setSize(700, 700);
+            g.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            g.setExtendedState(MAXIMIZED_BOTH);
+            g.setVisible(true);
+            setVisible(false);
+    }
+    
+    void checklogin()
+    {
+        
+        String var_username = new String();
+        String var_password = new String(password.getPassword());
+        var_username = username.getText();
+        
+        DatabaseConnector.connectToDB();
+               
+        Survey s = new Survey(this , var_username);
+        s.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        s.setSize(700, 700);
+        s.setExtendedState(MAXIMIZED_BOTH);
+        s.setVisible(true);
+        /*        
+        Registration r= new Registration();
+        r.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        r.setSize(700, 700);
+        r.setExtendedState(MAXIMIZED_BOTH);
+        r.setVisible(true);
+          */    
+        DatabaseConnector.closeConnection();
+    }
+    
+    public static void main(String args[])
+    {
+        Login l = new Login();
+        l.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        l.setSize(1000, 1000);
+        l.setExtendedState(MAXIMIZED_BOTH);
+        l.setVisible(true);
+    }
+}
