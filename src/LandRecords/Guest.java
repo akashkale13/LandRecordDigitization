@@ -5,10 +5,19 @@
  */
 package LandRecords;
 
+import com.sun.xml.internal.ws.api.streaming.XMLStreamReaderFactory;
+import databaseutility.GuestDB;
+import databaseutility.Server;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.io.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.table.DefaultTableModel;
 /**
  *
  * @author akash
@@ -45,6 +54,8 @@ public class Guest extends JFrame
     JTextField costmax;
     
     JButton search;
+    
+    JTable searchtable;
     
     //bottom panel variables
     JPanel bottompanel;
@@ -101,6 +112,7 @@ public class Guest extends JFrame
         
         logout.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 18));
         logout.setForeground(Color.WHITE);
+        logout.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         
         toppanel.add(username);
         toppanel.add(logout);
@@ -167,6 +179,7 @@ public class Guest extends JFrame
         
         search = new JButton("Search");
         search.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 16));
+        search.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         
         //design choice panel
         choicepanel = new JPanel();
@@ -286,6 +299,12 @@ public class Guest extends JFrame
         middlepanel.setLayout(new BorderLayout());
         middlepanel.add(choicepanel , BorderLayout.LINE_START);
         
+        searchtable = new JTable(new Object[][]{},new String[] {"Land ID","State","City","Type","Area","Cost"});
+        searchtable.getTableHeader().setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 18));
+        searchtable.setFont(new Font(Font.SANS_SERIF,Font.PLAIN,16));
+        JScrollPane sp = new JScrollPane(searchtable);
+        middlepanel.add(sp,BorderLayout.CENTER);
+        
         //bottom panel variables
         bottompanel = new JPanel();
         bottompanel.setBackground(new Color(52, 69, 150));
@@ -311,32 +330,65 @@ public class Guest extends JFrame
         {
             public void actionPerformed(ActionEvent a) 
             {
-                city.setEnabled(true);
-                city.removeAllItems();
-                city.addItem("");
                 String statename = (String) state.getSelectedItem();
-                String code = statename.substring(0,2);
-                try
+                
+                if(statename!="")
                 {
-                    FileReader fr1 = new FileReader("Citylist.txt");
-                    BufferedReader br1 = new BufferedReader(fr1);
-                    String str1;
-                    str1 = br1.readLine();
-                    while(str1!=null)
+                    city.setEnabled(true);
+                    city.removeAllItems();
+                    city.addItem("");
+                    String code = statename.substring(0,2);
+                    try
                     {
-                        String []cityarr;
-                        cityarr = str1.split(",");
-                        if(cityarr[1].equals(code))
-                        {
-                            city.addItem(cityarr[0]);
-                        }
+                        FileReader fr1 = new FileReader("Citylist.txt");
+                        BufferedReader br1 = new BufferedReader(fr1);
+                        String str1;
                         str1 = br1.readLine();
+                        while(str1!=null)
+                        {
+                            String []cityarr;
+                            cityarr = str1.split(",");
+                            if(cityarr[1].equals(code))
+                            {
+                                city.addItem(cityarr[0]);
+                            }
+                            str1 = br1.readLine();
+                        }
+                    }      
+                    catch(Exception e)
+                    {
+                        JOptionPane.showMessageDialog(null, e.toString(), "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 }
-                catch(Exception e)
+                else
                 {
-                    JOptionPane.showMessageDialog(null, e.toString(), "Error", JOptionPane.ERROR_MESSAGE);
-                }                
+                    city.removeAllItems();
+                    city.addItem("");
+                    city.setEnabled(false);
+                }
+            }
+        });
+        
+        //search button action listener
+        search.addActionListener(new ActionListener() 
+        {
+            public void actionPerformed(ActionEvent e) 
+            {
+                Server.connectToDB();
+                ResultSet rs = GuestDB.SearchRecords();
+                //DefaultTableModel m = (DefaultTableModel) searchtable.getModel();
+                Vector <String> v = new Vector<String>();
+                try {
+                    while(rs.next())
+                    {
+                      
+                        //m.addRow(v);
+                    }
+                } 
+                catch (SQLException ex) 
+                {
+                }
+                Server.closeConnection();
             }
         });
      

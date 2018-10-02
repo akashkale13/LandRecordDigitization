@@ -85,8 +85,8 @@ public class Login extends JFrame
         
         usernamelabel = new JLabel("Username");
         passwordlabel = new JLabel("Password");
-        username = new JTextField();
-        password = new JPasswordField();
+        username = new JTextField(null);
+        password = new JPasswordField(null);
         loginbutton = new JButton("Login");
         or = new JLabel("OR");
         guestlogin = new JLabel("Login as Guest");
@@ -99,15 +99,23 @@ public class Login extends JFrame
         
         homelabel.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 18));
         homelabel.setForeground(Color.WHITE);
+        homelabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        homelabel.setBorder(BorderFactory.createLineBorder(new Color(52,69,150), 1 , true));
         
         loginlabel.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 18));
         loginlabel.setForeground(Color.WHITE);
+        loginlabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        loginlabel.setBorder(BorderFactory.createLineBorder(new Color(52,69,150), 1 , true));
         
         contactuslabel.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 18));
         contactuslabel.setForeground(Color.WHITE);
+        contactuslabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        contactuslabel.setBorder(BorderFactory.createLineBorder(new Color(52,69,150), 1 , true));
         
         aboutuslabel.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 18));
         aboutuslabel.setForeground(Color.WHITE);
+        aboutuslabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        aboutuslabel.setBorder(BorderFactory.createLineBorder(new Color(52,69,150), 1 , true));
         
         //add to choicepanel choicelistpanel
         choicelist.setLayout(new GridLayout(0, 1));
@@ -134,10 +142,12 @@ public class Login extends JFrame
         
         loginbutton.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 15));
         loginbutton.setPreferredSize(new Dimension(300, 40));
+        loginbutton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         
         or.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 18));
         guestlogin.setFont(new Font(Font.SERIF, Font.PLAIN, 15));
-                
+        guestlogin.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        
         GridBagConstraints g;
         
         loginpanel.setLayout(new GridBagLayout());
@@ -187,7 +197,6 @@ public class Login extends JFrame
         g.anchor = GridBagConstraints.CENTER;
         g.insets = new Insets(5, 5, 5, 5);
         loginpanel.add(guestlogin,g);
-        
         
         //design aboutuspanel
         
@@ -288,11 +297,12 @@ public class Login extends JFrame
             switch(dept)
             {
                 case "REG":
-                    Registration r = new Registration();
+                    Registration r = new Registration(this , var_username);
                     r.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                     r.setSize(700, 700);
                     r.setExtendedState(MAXIMIZED_BOTH);
                     r.setVisible(true);
+                    setVisible(false);
                     break;
                     
                 case "SUR":
@@ -301,14 +311,14 @@ public class Login extends JFrame
                     s.setSize(700, 700);
                     s.setExtendedState(MAXIMIZED_BOTH);
                     s.setVisible(true);
+                    setVisible(false);
                     break;
-                    
-                default:
-                    JOptionPane.showMessageDialog(this, "Invalid Username or Password", "Error",JOptionPane.ERROR_MESSAGE);
-                    break;                    
             }
         }
-        
+        else
+        {
+            JOptionPane.showMessageDialog(this, "Invalid Username or Password", "Error",JOptionPane.ERROR_MESSAGE);
+        }
         username.setText("");
         password.setText("");
                

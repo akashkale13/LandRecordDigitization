@@ -87,6 +87,7 @@ public class Survey extends JFrame
     
     void instantiate()
     {
+        
         //top panel variables
         toppanel = new JPanel();
         username = new JLabel();
@@ -104,6 +105,7 @@ public class Survey extends JFrame
         
         logout.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 18));
         logout.setForeground(Color.WHITE);
+        logout.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         
         //add components to top panel
         toppanel.add(username);
@@ -158,6 +160,7 @@ public class Survey extends JFrame
         area.setPreferredSize(new Dimension(300, 30));
         
         landsubmit.setFont(new Font(Font.SANS_SERIF, Font.PLAIN ,16));
+        landsubmit.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         
         container.setLayout(new GridBagLayout());
         GridBagConstraints g;
@@ -298,31 +301,41 @@ public class Survey extends JFrame
         {
             public void actionPerformed(ActionEvent a) 
             {
+                String statename = (String) state.getSelectedItem();
+                
+                if(statename!="")
+                {
                 city.setEnabled(true);
                 city.removeAllItems();
                 city.addItem("");
-                String statename = (String) state.getSelectedItem();
                 String code = statename.substring(0,2);
-                try
-                {
-                    FileReader fr1 = new FileReader("Citylist.txt");
-                    BufferedReader br1 = new BufferedReader(fr1);
-                    String str1;
-                    str1 = br1.readLine();
-                    while(str1!=null)
+                    try
                     {
-                        String []cityarr;
-                        cityarr = str1.split(",");
-                        if(cityarr[1].equals(code))
-                        {
-                            city.addItem(cityarr[0]);
-                        }
+                        FileReader fr1 = new FileReader("Citylist.txt");
+                        BufferedReader br1 = new BufferedReader(fr1);
+                        String str1;
                         str1 = br1.readLine();
+                        while(str1!=null)
+                        {
+                            String []cityarr;
+                            cityarr = str1.split(",");
+                            if(cityarr[1].equals(code))
+                            {
+                                city.addItem(cityarr[0]);
+                            }
+                            str1 = br1.readLine();
+                        }
+                    }
+                    catch(Exception e)
+                    {
+                        JOptionPane.showMessageDialog(null, e.toString(), "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 }
-                catch(Exception e)
+                else
                 {
-                    JOptionPane.showMessageDialog(null, e.toString(), "Error", JOptionPane.ERROR_MESSAGE);
+                    city.removeAllItems();
+                    city.addItem("");
+                    city.setEnabled(false);
                 }
             }
         });
