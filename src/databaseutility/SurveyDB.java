@@ -6,7 +6,6 @@
 package databaseutility;
 
 import static databaseutility.Server.conn;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Map;

@@ -8,6 +8,7 @@ package LandRecords;
 import databaseutility.Server;
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.Connection;
 import java.util.Vector;
 import javax.swing.*;
 import javax.swing.plaf.DimensionUIResource;
@@ -343,6 +344,37 @@ public class Registration extends JFrame
             {
                 Server.connectToDB();
                 
+                String lid;
+                lid = landid.getText();
+
+                String span;
+                span = sellerpan.getText();
+
+                String str = Server.validateSeller(lid, span);
+                
+                if(str.equals("ERROR"))
+                {
+                    JOptionPane.showMessageDialog(null, "Incorrect PAN", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+                
+                else
+                {
+                    String[] strlist = str.split(",");
+                    
+                    Vector <String> v = new Vector<String>();
+                    int i=0;
+                    while(i < strlist.length)
+                    {
+                        v.add(strlist[i]);
+                        i++;
+                    }
+
+                    DefaultTableModel m = (DefaultTableModel) sellertable.getModel();
+                    m.addRow(v);
+                }
+                
+                sellerpan.setText("");
+                
                 Server.closeConnection();
             }
         });
@@ -352,7 +384,39 @@ public class Registration extends JFrame
         {
             public void actionPerformed(ActionEvent e) 
             {
+                String bpan , pershare;
+                bpan = buyerpan.getText();
+                pershare = share.getText();
+                String lid = landid.getText();
                 
+                Server.connectToDB();
+
+                boolean valid = Server.checkBuyer(bpan);
+                if(valid)
+                {
+                    String str = Server.getPersonData(bpan);
+                    String []strlist = str.split(",");
+                    Vector <String> v = new Vector<String>();
+                    int i=0;
+                    while(i<strlist.length)
+                    {
+                        v.add(strlist[i]);
+                        i++;
+                    }
+                    
+                    v.insertElementAt(pershare, 2);
+                    DefaultTableModel m = (DefaultTableModel) buyertable.getModel();
+                    m.addRow(v);
+                    //Transaction.makeTransaction(v, conn, landid);
+                }
+                
+                else
+                {
+                    //TODO new panel for entering person details
+                }
+                
+                buyerpan.setText("");
+                share.setText("");
             }
         });
         

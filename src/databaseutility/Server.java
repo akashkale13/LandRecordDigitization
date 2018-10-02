@@ -21,12 +21,12 @@ public class Server
     public static void connectToDB()
     {
         final String jdbcdriver = "com.mysql.jdbc.Driver";
-        final  String url = "jdbc:mysql://localhost:3306/akashdb";
+        final  String url = "jdbc:mysql://localhost:3306/LandRecords";
         
         try
         {
             Class.forName(jdbcdriver);
-            conn = DriverManager.getConnection(url,"akash","akash@13");
+            conn = DriverManager.getConnection(url,"root","anujk1998");
         }
         catch(ClassNotFoundException e)
         {
@@ -61,4 +61,85 @@ public class Server
         boolean check = (ps.executeQuery()).next();
         return check;
     }
+    
+    public static String validateSeller(String landid, String pan)
+    {
+       // System.out.println(pan);
+        String str = new String();
+        try
+        {
+            String sql = "select * from Person where EXISTS(select * from LandOwners where LandID = ? AND OwnerStatus = 'Current' AND AadharNo = ?) AND AadharNo = ?";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, Integer.parseInt(landid));
+            ps.setLong(2, Long.parseLong(pan));
+            ps.setLong(3, Long.parseLong(pan));
+            
+            ResultSet rs = ps.executeQuery();
+
+            if(rs.next())
+            {
+                str = rs.getString("AadharNo")+","+rs.getString("Name")+","+rs.getString("Phone")+","+rs.getString("Email");   
+            }
+            else
+            {
+                str="ERROR";
+            }
+        }
+        catch(Exception e)
+        {
+
+        }
+        
+        return str;
+    }  
+    
+    public static boolean checkBuyer(String pan)
+    {
+        String sql = "select * from Person where AadharNo=?";
+        try
+        {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, pan);
+            ResultSet rs = ps.executeQuery();
+            if(rs.next())
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        catch(Exception e)
+        {
+            return false;
+        }    
+    }
+    
+    public static String getPersonData(String pan)
+    {
+        String str = new String();
+        try
+        {
+            String sql = "select AadharNo,Name,Email,Phone from Person where AadharNo = ?";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setLong(1, Long.parseLong(pan));
+            ResultSet rs=ps.executeQuery();
+
+            if(rs.next())
+            {
+                str = rs.getString("AadharNo")+","+rs.getString("Name")+","+rs.getString("Phone")+","+rs.getString("Email");   
+            }
+            else
+            {
+                str="ERROR";
+            }
+        }
+        catch(Exception e)
+        {
+
+        }
+        
+        return str;
+    }    
 }
