@@ -5,7 +5,7 @@
  */
 package LandRecords;
 
-import databaseutility.RegistrationDB;
+import databaseutility.Transaction;
 import databaseutility.Server;
 import java.awt.*;
 import java.awt.event.*;
@@ -445,8 +445,9 @@ public class Registration extends JFrame
                     
                     String var_landid = landid.getText();
                             
-                    String fetchfunc = RegistrationDB.checkOwnerCount(var_landid);
-                    String []strlist = fetchfunc.split(",");
+                    Transaction t = new Transaction(var_landid);
+                    String str = t.checkSellerCount();
+                    String []strlist = str.split(",");
                     
                     if(Integer.parseInt(strlist[0]) == sellertable.getRowCount())
                     {
@@ -455,8 +456,8 @@ public class Registration extends JFrame
                             Server.conn.setAutoCommit(false);
                             String var_price = price.getText();
                             String var_oldregid = strlist[1];
-                            
-                            int newregid = RegistrationDB.addRegistration(var_landid ,var_oldregid ,var_price);
+                             
+                            int newregid = t.register(var_oldregid ,var_price);
                             
                             String []sellerPANs = {};
                             int k = 0;
@@ -476,7 +477,7 @@ public class Registration extends JFrame
                                 k++;
                             }
                             
-                            RegistrationDB.addOwners(buyerPANs , buyershares, var_landid, newregid);
+                            t.addOwners(buyerPANs , buyershares, newregid);
                     
                             Server.conn.commit();
                             JOptionPane.showMessageDialog(null, "committed");
