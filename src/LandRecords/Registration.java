@@ -5,14 +5,19 @@
  */
 package LandRecords;
 
+import databaseutility.RegistrationDB;
 import databaseutility.Server;
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.*;
 import javax.swing.plaf.DimensionUIResource;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 
 /**
  *
@@ -425,6 +430,79 @@ public class Registration extends JFrame
         {
             public void actionPerformed(ActionEvent e) 
             {
+                //validate 100% buyer share
+                int share = 0;
+                int i=0;
+                while(i != buyertable.getRowCount())
+                {
+                    share += Integer.parseInt((String) buyertable.getValueAt(i, 2));
+                    ++i;  
+                }
+                
+                if(share == 100)
+                {
+                    Server.connectToDB();
+                    
+                    String var_landid = landid.getText();
+                            
+                    String fetchfunc = RegistrationDB.checkOwnerCount(var_landid);
+                    String []strlist = fetchfunc.split(",");
+                    
+                    if(Integer.parseInt(strlist[0]) == sellertable.getRowCount())
+                    {
+                        try 
+                        {
+                            Server.conn.setAutoCommit(false);
+                            String var_price = price.getText();
+                            String var_oldregid = strlist[1];
+                            
+                            int newregid = RegistrationDB.addRegistration(var_landid ,var_oldregid ,var_price);
+                            
+                            String []sellerPANs = {};
+                            int k = 0;
+                            while(k < sellertable.getRowCount())
+                            {
+                                sellerPANs[k] = (String) sellertable.getValueAt(k, 0);
+                                k++;
+                            }
+                            
+                            String []buyerPANs = {};
+                            String []buyershares = {};
+                            k = 0;
+                            while(k < buyertable.getRowCount())
+                            {
+                                buyerPANs[k] = (String) buyertable.getValueAt(k, 0);
+                                buyershares[k] = (String) buyertable.getValueAt(k, 2);
+                                k++;
+                            }
+                            
+                            RegistrationDB.addOwners(buyerPANs , buyershares, var_landid, newregid);
+                    
+                            Server.conn.commit();
+                            JOptionPane.showMessageDialog(null, "committed");
+                        } 
+                        catch (SQLException ae) 
+                        {
+                            try 
+                            {
+                                Server.conn.rollback();
+                            } 
+                            catch (SQLException ex) 
+                            {
+                    
+                            }
+                        }
+                        Server.closeConnection();
+                    }
+                    else
+                    {
+                        JOptionPane.showMessageDialog(null, "Seller count does not match", "Error",JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+                else
+                {
+                    JOptionPane.showMessageDialog(null, "Buyer Share Percentage is not 100%", "Error",JOptionPane.ERROR_MESSAGE);  
+                }
             }
         });
         

@@ -16,17 +16,17 @@ import java.io.*;
  */
 public class Server
 {
-    static Connection conn = null;
+    static public Connection conn = null;
     
     public static void connectToDB()
     {
         final String jdbcdriver = "com.mysql.jdbc.Driver";
-        final  String url = "jdbc:mysql://localhost:3306/LandRecords";
+        final  String url = "jdbc:mysql://localhost:3306/akashdb";
         
         try
         {
             Class.forName(jdbcdriver);
-            conn = DriverManager.getConnection(url,"root","anujk1998");
+            conn = DriverManager.getConnection(url,"akash","akash@13");
         }
         catch(ClassNotFoundException e)
         {
