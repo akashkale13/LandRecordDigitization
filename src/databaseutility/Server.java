@@ -21,12 +21,12 @@ public class Server
     public static void connectToDB()
     {
         final String jdbcdriver = "com.mysql.jdbc.Driver";
-        final  String url = "jdbc:mysql://localhost:3306/akashdb";
+        final  String url = "jdbc:mysql://localhost:3306/LandRecords";
         
         try
         {
             Class.forName(jdbcdriver);
-            conn = DriverManager.getConnection(url,"akash","akash@13");
+            conn = DriverManager.getConnection(url,"root","anujk1998");
         }
         catch(ClassNotFoundException e)
         {

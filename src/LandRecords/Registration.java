@@ -433,7 +433,7 @@ public class Registration extends JFrame
                 //validate 100% buyer share
                 int share = 0;
                 int i=0;
-                while(i != buyertable.getRowCount())
+                while(i < buyertable.getRowCount())
                 {
                     share += Integer.parseInt((String) buyertable.getValueAt(i, 2));
                     ++i;  
@@ -441,46 +441,50 @@ public class Registration extends JFrame
                 
                 if(share == 100)
                 {
+                    Vector<String> sellerPANs = new Vector<String>();
+                    int k = 0;
+                    
+                    while(k < sellertable.getRowCount())
+                    {
+                        sellerPANs.add((String) sellertable.getValueAt(k, 0));
+                        k++;
+                    }
+
                     Server.connectToDB();
                     
                     String var_landid = landid.getText();
                             
                     Transaction t = new Transaction(var_landid);
-                    String str = t.checkSellerCount();
-                    String []strlist = str.split(",");
                     
-                    if(Integer.parseInt(strlist[0]) == sellertable.getRowCount())
+                    String oldregid = t.checkSellerValidity(sellerPANs);
+                    
+                    if(!(oldregid == null))
                     {
                         try 
                         {
-                            Server.conn.setAutoCommit(false);
+                            //Server.conn.setAutoCommit(false);
                             String var_price = price.getText();
-                            String var_oldregid = strlist[1];
-                             
-                            int newregid = t.register(var_oldregid ,var_price);
+                            int newregid = t.register(oldregid ,var_price);
                             
-                            String []sellerPANs = {};
-                            int k = 0;
-                            while(k < sellertable.getRowCount())
+                            if(newregid == -1)
                             {
-                                sellerPANs[k] = (String) sellertable.getValueAt(k, 0);
-                                k++;
+                                throw new SQLException() ;
                             }
                             
-                            String []buyerPANs = {};
-                            String []buyershares = {};
+                            Vector<String> buyerPANs = new Vector<String>();
+                            Vector<String> buyershares = new Vector<String>();
                             k = 0;
+                            
                             while(k < buyertable.getRowCount())
                             {
-                                buyerPANs[k] = (String) buyertable.getValueAt(k, 0);
-                                buyershares[k] = (String) buyertable.getValueAt(k, 2);
+                                buyerPANs.add((String) buyertable.getValueAt(k, 0));
+                                buyershares.add((String) buyertable.getValueAt(k, 2));
                                 k++;
                             }
                             
                             t.addOwners(buyerPANs , buyershares, newregid);
-                    
-                            Server.conn.commit();
-                            JOptionPane.showMessageDialog(null, "committed");
+                            JOptionPane.showMessageDialog(null, "Your RegistrationID for this transaction is " + newregid, "Transaction Successful", JOptionPane.INFORMATION_MESSAGE);
+                            //Server.conn.commit();
                         } 
                         catch (SQLException ae) 
                         {
@@ -497,7 +501,7 @@ public class Registration extends JFrame
                     }
                     else
                     {
-                        JOptionPane.showMessageDialog(null, "Seller count does not match", "Error",JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(null, "Seller(s) do not match", "Error",JOptionPane.ERROR_MESSAGE);
                     }
                 }
                 else
