@@ -418,6 +418,7 @@ public class Registration extends JFrame
                 else
                 {
                     //TODO new panel for entering person details
+                    PersonDialog();
                 }
                 
                 buyerpan.setText("");
@@ -513,5 +514,74 @@ public class Registration extends JFrame
     {
         f.setVisible(true);
         dispose();
+    }
+    
+    void PersonDialog()
+    {
+        JDialog d = new JDialog();
+        
+	JPanel p = new JPanel();
+	p.setLayout(new GridLayout(0,2));
+		
+	JPanel p1 = new JPanel();
+		
+	JLabel panlabel = new JLabel("PAN" ,JLabel.CENTER);
+	JLabel namelabel = new JLabel("Name",JLabel.CENTER);
+	JLabel emaillabel = new JLabel("Email ID",JLabel.CENTER);
+	JLabel phonelabel = new JLabel("Phone No",JLabel.CENTER);
+	JLabel aadharlabel = new JLabel("Aadhar No",JLabel.CENTER);
+	JLabel banklabel = new JLabel("Bank Name",JLabel.CENTER);
+	JLabel accountlabel = new JLabel("Account No",JLabel.CENTER);
+
+	JTextField pan = new JTextField();
+	JTextField name = new JTextField();
+	JTextField aadhar = new JTextField();
+	JTextField phone = new JTextField();		
+	JTextField email = new JTextField();
+	JTextField bank = new JTextField();
+	JTextField account = new JTextField();
+
+        JButton submit  = new JButton("Submit");
+
+	p.setLayout(new GridLayout(0,2,10,10));
+	p.add(panlabel);
+	p.add(pan);
+	p.add(namelabel);
+	p.add(name);
+	p.add(phonelabel);
+	p.add(phone);
+	p.add(emaillabel);
+	p.add(email);
+	p.add(banklabel);
+	p.add(bank);
+	p.add(accountlabel);
+	p.add(account);
+	
+	p1.add(submit);
+		
+	d.setLayout(new BorderLayout());
+	d.add(p,BorderLayout.CENTER);
+	d.add(p1,BorderLayout.PAGE_END);
+		
+	submit.addActionListener(new ActionListener()
+	{
+            public void actionPerformed(ActionEvent a)
+            {
+		String var_pan = pan.getText();
+                String var_name = name.getText();
+                String var_phone = phone.getText();
+                String var_email = email.getText();
+                String var_bank = bank.getText();
+                String var_account = account.getText();
+                
+                Server.connectToDB();
+                Server.addPerson(var_pan , var_name , var_phone , var_email,var_bank,var_account);
+                Server.closeConnection();
+            }
+	});
+
+	d.setVisible(true);
+        d.setSize(300, 300);
+        d.setLocation(250, 350);
     }
 }

@@ -161,7 +161,7 @@ public class Survey extends JFrame
         
         landsubmit.setFont(new Font(Font.SANS_SERIF, Font.PLAIN ,16));
         landsubmit.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        
+-        
         container.setLayout(new GridBagLayout());
         GridBagConstraints g;
         
@@ -278,12 +278,23 @@ public class Survey extends JFrame
                 hm.put("Address", address.getText());
                 hm.put("State", ((String) state.getSelectedItem()).substring(3));
                 hm.put("City", (String) city.getSelectedItem());
-
+                try
+                {
                 Server.connectToDB();
+                Server.conn.setAutoCommit(false);
+                String buyerpan[] = {"0"};
+                String buyershare[] = {"100"};
+                Transaction t = new Transaction(landid.getText());
+                t.addOwners(buyerpan , buyershare , null);
                 SurveyDB.addLand(hm);
-
+                Server.conn.commit();
                 Server.closeConnection();
-           }
+                }
+                catch(Exception e)
+                {
+                    JOptionPane.showMessageDialog(null, e.toString(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
         });
         
         //mouseclicked listener for logout

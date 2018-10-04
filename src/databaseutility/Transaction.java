@@ -102,7 +102,7 @@ public class Transaction
         
         
     }
-    public void addOwners(String []buyerpans ,String []buyershares,int newregid)
+    public void addOwners(String []buyerpans ,String []buyershares,String newregid)
     {
         try
         {
@@ -122,7 +122,7 @@ public class Transaction
                 ps.setInt(2, landid);
                 ps.setInt(3, Integer.parseInt(buyershares[i]));
                 ps.setString(4, "Current");
-                ps.setInt(5, newregid);
+                ps.setString(5, Integer.parseInt(newregid));
                 ps.executeUpdate();
                 ++i;
             }

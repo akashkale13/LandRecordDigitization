@@ -141,5 +141,10 @@ public class Server
         }
         
         return str;
-    }    
+    }
+
+    public static void addPerson(String pan,String name,String phone,String email,String bank,String account)
+    {
+        
+    }
 }
