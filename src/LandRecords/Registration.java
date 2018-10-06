@@ -11,10 +11,12 @@ import java.awt.*;
 import java.awt.event.*;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
+import javax.swing.border.EtchedBorder;
 import javax.swing.plaf.DimensionUIResource;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
@@ -80,13 +82,14 @@ public class Registration extends JFrame
         toppanel.setBackground(new Color(52, 69, 150));
         toppanel.setPreferredSize(new Dimension(0, 100));
         
-        logout = new JLabel("Log Out");
+        logout = new JLabel(" Log Out ");
         username = new JLabel();
         logout.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 18));
         username.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 16));
         logout.setForeground(Color.WHITE);
         username.setForeground(Color.WHITE);
         logout.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        logout.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
         
         toppanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 30, 40));
         toppanel.add(username);
@@ -355,11 +358,16 @@ public class Registration extends JFrame
                 String span;
                 span = sellerpan.getText();
 
-                String str = Server.validateSeller(lid, span);
+                String str = "ERROR";
+                
+                if(!(lid.equals("") | span.equals("")))
+                {
+                    str = Server.validateSeller(lid, span);
+                }
                 
                 if(str.equals("ERROR"))
                 {
-                    JOptionPane.showMessageDialog(null, "Incorrect PAN", "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "Incorrect Input", "Error", JOptionPane.ERROR_MESSAGE);
                 }
                 
                 else
@@ -392,12 +400,11 @@ public class Registration extends JFrame
                 String bpan , pershare;
                 bpan = buyerpan.getText();
                 pershare = share.getText();
-                String lid = landid.getText();
                 
                 Server.connectToDB();
 
                 boolean valid = Server.checkBuyer(bpan);
-                if(valid)
+                if(valid && !pershare.equals(""))
                 {
                     String str = Server.getPersonData(bpan);
                     String []strlist = str.split(",");
@@ -412,13 +419,18 @@ public class Registration extends JFrame
                     v.insertElementAt(pershare, 2);
                     DefaultTableModel m = (DefaultTableModel) buyertable.getModel();
                     m.addRow(v);
-                    //Transaction.makeTransaction(v, conn, landid);
                 }
                 
                 else
                 {
-                    //TODO new panel for entering person details
-                    PersonDialog();
+                    if(bpan.equals("") | pershare.equals(""))
+                    {
+                        JOptionPane.showMessageDialog(null,"Invalid Input" ,"Error" ,JOptionPane.ERROR_MESSAGE);
+                    }
+                    else
+                    {
+                        PersonDialog();
+                    }
                 }
                 
                 buyerpan.setText("");
@@ -434,7 +446,7 @@ public class Registration extends JFrame
                 //validate 100% buyer share
                 int share = 0;
                 int i=0;
-                while(i != buyertable.getRowCount())
+                while(i < buyertable.getRowCount())
                 {
                     share += Integer.parseInt((String) buyertable.getValueAt(i, 2));
                     ++i;  
@@ -442,52 +454,80 @@ public class Registration extends JFrame
                 
                 if(share == 100)
                 {
+                    Vector<String> sellerPANs = new Vector<String>();
+                    int k = 0;
+                    
+                    while(k < sellertable.getRowCount())
+                    {
+                        sellerPANs.add((String) sellertable.getValueAt(k, 0));
+                        k++;
+                    }
+
                     Server.connectToDB();
                     
                     String var_landid = landid.getText();
                             
                     Transaction t = new Transaction(var_landid);
-                    String str = t.checkSellerCount();
-                    String []strlist = str.split(",");
                     
-                    if(Integer.parseInt(strlist[0]) == sellertable.getRowCount())
+                    String oldregid = t.checkSellerValidity(sellerPANs);
+                    
+                    if(!(oldregid == null))
                     {
                         try 
                         {
                             Server.conn.setAutoCommit(false);
                             String var_price = price.getText();
-                            String var_oldregid = strlist[1];
-                             
-                            int newregid = t.register(var_oldregid ,var_price);
-                            
-                            String []sellerPANs = {};
-                            int k = 0;
-                            while(k < sellertable.getRowCount())
+                            if(var_price.equals(""))
                             {
-                                sellerPANs[k] = (String) sellertable.getValueAt(k, 0);
-                                k++;
+                                throw new SQLException("Price field is empty");
+                            }
+                            int newregid = t.register(oldregid ,var_price);
+                            
+                            if(newregid == -1)
+                            {
+                                throw new SQLException("Failed to allot new registration ID") ;
                             }
                             
-                            String []buyerPANs = {};
-                            String []buyershares = {};
+                            Vector<String> buyerPANs = new Vector<String>();
+                            Vector<String> buyershares = new Vector<String>();
                             k = 0;
+                            
                             while(k < buyertable.getRowCount())
                             {
-                                buyerPANs[k] = (String) buyertable.getValueAt(k, 0);
-                                buyershares[k] = (String) buyertable.getValueAt(k, 2);
+                                buyerPANs.add((String) buyertable.getValueAt(k, 0));
+                                buyershares.add((String) buyertable.getValueAt(k, 2));
                                 k++;
                             }
                             
-                            t.addOwners(buyerPANs , buyershares, newregid);
-                    
+                            t.addOwners(buyerPANs , buyershares, Integer.toString(newregid));
                             Server.conn.commit();
-                            JOptionPane.showMessageDialog(null, "committed");
+                            JOptionPane.showMessageDialog(null, "Your RegistrationID for this transaction is " + newregid, "Transaction Successful", JOptionPane.INFORMATION_MESSAGE);
+                            
+                            //clear fields 
+                            
+                            landid.setText("");
+                            price.setText("");
+                            
+                            int p = sellertable.getRowCount();
+                            while(p >= 0)
+                            {
+                                ((DefaultTableModel)sellertable.getModel()).removeRow(p-1);
+                            }
+                            
+                            p = buyertable.getRowCount();
+                            while(p >= 0)
+                            {
+                                ((DefaultTableModel)buyertable.getModel()).removeRow(p-1);
+                            }
+                                    
                         } 
                         catch (SQLException ae) 
                         {
                             try 
                             {
                                 Server.conn.rollback();
+                                
+                                JOptionPane.showMessageDialog(null, ae.getMessage(),"Error", JOptionPane.ERROR_MESSAGE);
                             } 
                             catch (SQLException ex) 
                             {
@@ -498,13 +538,14 @@ public class Registration extends JFrame
                     }
                     else
                     {
-                        JOptionPane.showMessageDialog(null, "Seller count does not match", "Error",JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(null, "Seller(s) do not match", "Error",JOptionPane.ERROR_MESSAGE);
                     }
                 }
                 else
                 {
                     JOptionPane.showMessageDialog(null, "Buyer Share Percentage is not 100%", "Error",JOptionPane.ERROR_MESSAGE);  
                 }
+                
             }
         });
         
@@ -526,10 +567,10 @@ public class Registration extends JFrame
 	JPanel p1 = new JPanel();
 		
 	JLabel panlabel = new JLabel("PAN" ,JLabel.CENTER);
-	JLabel namelabel = new JLabel("Name",JLabel.CENTER);
+	JLabel aadharlabel = new JLabel("Aadhar No" ,JLabel.CENTER);
+        JLabel namelabel = new JLabel("Name",JLabel.CENTER);
 	JLabel emaillabel = new JLabel("Email ID",JLabel.CENTER);
 	JLabel phonelabel = new JLabel("Phone No",JLabel.CENTER);
-	JLabel aadharlabel = new JLabel("Aadhar No",JLabel.CENTER);
 	JLabel banklabel = new JLabel("Bank Name",JLabel.CENTER);
 	JLabel accountlabel = new JLabel("Account No",JLabel.CENTER);
 
@@ -546,6 +587,8 @@ public class Registration extends JFrame
 	p.setLayout(new GridLayout(0,2,10,10));
 	p.add(panlabel);
 	p.add(pan);
+        p.add(aadharlabel);
+        p.add(aadhar);
 	p.add(namelabel);
 	p.add(name);
 	p.add(phonelabel);
@@ -567,21 +610,33 @@ public class Registration extends JFrame
 	{
             public void actionPerformed(ActionEvent a)
             {
-		String var_pan = pan.getText();
-                String var_name = name.getText();
-                String var_phone = phone.getText();
-                String var_email = email.getText();
-                String var_bank = bank.getText();
-                String var_account = account.getText();
+                HashMap<String ,String> h = new HashMap<>();
+                h.put("PAN", pan.getText());
+                h.put("Name", name.getText());
+                h.put("Bank", bank.getText());
+                h.put("Account", account.getText());
+                h.put("Email" , email.getText());
+                h.put("Phone", phone.getText());
+		String var_aadhar = aadhar.getText();
                 
-                Server.connectToDB();
-                Server.addPerson(var_pan , var_name , var_phone , var_email,var_bank,var_account);
-                Server.closeConnection();
+                if(!h.containsValue(""))
+                {
+                    d.dispose();
+                    Server.connectToDB();
+                    Server.addPerson(h , var_aadhar);
+                    Server.closeConnection();
+                    JOptionPane.showMessageDialog(null, "Person data added successfully" , "Information" ,JOptionPane.INFORMATION_MESSAGE);
+                }
+                else
+                {
+                    JOptionPane.showMessageDialog(null, "Invalid Input" , "Error" , JOptionPane.ERROR_MESSAGE);
+                }
+                
             }
 	});
 
 	d.setVisible(true);
-        d.setSize(300, 300);
-        d.setLocation(250, 350);
+        d.setSize(400, 300);
+        d.setLocation(480, 250);
     }
 }

@@ -14,9 +14,11 @@ import javax.swing.*;
 import java.io.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.border.EtchedBorder;
 import javax.swing.table.DefaultTableModel;
 /**
  *
@@ -100,7 +102,7 @@ public class Guest extends JFrame
         //top panel variables
         toppanel = new JPanel();
         username = new JLabel("Logged in as Guest");
-        logout = new JLabel("Log Out");
+        logout = new JLabel(" Log Out ");
         toppanel.setBackground(new Color(52, 69, 150));
         toppanel.setPreferredSize(new Dimension(0, 100));
         
@@ -113,6 +115,7 @@ public class Guest extends JFrame
         logout.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 18));
         logout.setForeground(Color.WHITE);
         logout.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        logout.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
         
         toppanel.add(username);
         toppanel.add(logout);
@@ -376,7 +379,7 @@ public class Guest extends JFrame
             {
                 Server.connectToDB();
                 ResultSet rs = GuestDB.SearchRecords();
-                //DefaultTableModel m = (DefaultTableModel) searchtable.getModel();
+                DefaultTableModel m = (DefaultTableModel) searchtable.getModel();
                 Vector <String> v = new Vector<String>();
                 try {
                     while(rs.next())

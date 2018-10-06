@@ -43,7 +43,11 @@ public class SurveyDB
  
             if(result!=0)
             {
-                JOptionPane.showMessageDialog(null, "Successfully entered");
+                JOptionPane.showMessageDialog(null, "Successfully entered information","Information",JOptionPane.INFORMATION_MESSAGE);
+            }
+            if(result == 0)
+            {
+                JOptionPane.showMessageDialog(null, "Invalid input" , "Error" , JOptionPane.ERROR_MESSAGE);
             }
         }
         catch(SQLException sqe)

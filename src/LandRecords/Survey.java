@@ -13,6 +13,8 @@ import java.io.*;
 import java.sql.Connection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
+import javax.swing.border.EtchedBorder;
 
 /**
  *
@@ -92,7 +94,7 @@ public class Survey extends JFrame
         toppanel = new JPanel();
         username = new JLabel();
         username.setText("Logged in as "+str);
-        logout = new JLabel("Log Out");
+        logout = new JLabel(" Log Out ");
                 
         toppanel.setBackground(new Color(52, 69, 150));
         toppanel.setPreferredSize(new Dimension(0, 100));
@@ -106,6 +108,7 @@ public class Survey extends JFrame
         logout.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 18));
         logout.setForeground(Color.WHITE);
         logout.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        logout.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
         
         //add components to top panel
         toppanel.add(username);
@@ -159,9 +162,9 @@ public class Survey extends JFrame
         area.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 15));
         area.setPreferredSize(new Dimension(300, 30));
         
-        landsubmit.setFont(new Font(Font.SANS_SERIF, Font.PLAIN ,16));
+        landsubmit.setFont(new Font(Font.SANS_SERIF, Font.PLAIN ,16));      
         landsubmit.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
--        
+        
         container.setLayout(new GridBagLayout());
         GridBagConstraints g;
         
@@ -268,31 +271,47 @@ public class Survey extends JFrame
         {
            public void actionPerformed(ActionEvent a)
            {
-               Server.connectToDB();
-               JOptionPane.showMessageDialog(null, "Clicked");
+                Server.connectToDB();
                 Map<String,String> hm = new HashMap<String,String>();
 
                 hm.put("LandID", landid.getText());
                 hm.put("LandType", type.getSelectedItem().toString());
                 hm.put("Area", area.getText());
                 hm.put("Address", address.getText());
-                hm.put("State", ((String) state.getSelectedItem()).substring(3));
+                if(state.getSelectedItem()!="")
+                {
+                    hm.put("State", ((String) state.getSelectedItem()).substring(3));
+                }
                 hm.put("City", (String) city.getSelectedItem());
                 try
                 {
-                Server.connectToDB();
-                Server.conn.setAutoCommit(false);
-                String buyerpan[] = {"0"};
-                String buyershare[] = {"100"};
-                Transaction t = new Transaction(landid.getText());
-                t.addOwners(buyerpan , buyershare , null);
-                SurveyDB.addLand(hm);
-                Server.conn.commit();
-                Server.closeConnection();
+                    if(hm.containsValue(""))
+                    {
+                        throw new Exception("Empty values not allowed");
+                    }
+                    Server.connectToDB();
+                    Server.conn.setAutoCommit(false);
+                    Vector<String> buyerpan = new Vector<String>();
+                    Vector<String> buyershare = new Vector<String>();
+                    buyershare.add("100");
+                    buyerpan.add("0");
+                    Transaction t = new Transaction(landid.getText());
+                    t.addOwners(buyerpan , buyershare ,"0");
+                    SurveyDB.addLand(hm);
+                    Server.conn.commit();
+                    Server.closeConnection();
+                
+                    landid.setText("");
+                    state.setSelectedIndex(0);
+                    city.setSelectedIndex(0);
+                    city.setEnabled(false);
+                    address.setText("");
+                    type.setSelectedIndex(0);
+                    area.setText("");
                 }
                 catch(Exception e)
                 {
-                    JOptionPane.showMessageDialog(null, e.toString(), "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });

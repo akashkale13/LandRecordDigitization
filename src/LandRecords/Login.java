@@ -46,10 +46,14 @@ public class Login extends JFrame
     JLabel guestlogin;
     JButton loginbutton; 
     
+    JLabel insidecontactpanel;
+    JLabel insideaboutuspanel;
+    
     //bottom panel variables
     JPanel bottompanel;
-    JLabel conf_server;
-        
+    JLabel gotohome;
+    JLabel settings;
+    
     public Login()
     {
         instantiate();
@@ -62,7 +66,8 @@ public class Login extends JFrame
         toppanel.setPreferredSize(new Dimension(0, 100));
         toppanel.setBackground(new Color(52, 69, 150));
  
-        title = new JLabel("LAND RECORD PORTAL");
+        ImageIcon i = new ImageIcon("homeicon.jpeg");
+        title = new JLabel("   LAND RECORD PORTAL", i,JLabel.LEFT);
         title.setForeground(Color.WHITE);
         title.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 19));
         
@@ -90,6 +95,9 @@ public class Login extends JFrame
         loginbutton = new JButton("Login");
         or = new JLabel("OR");
         guestlogin = new JLabel("Login as Guest");
+        
+        insidecontactpanel = new JLabel();
+        insideaboutuspanel = new JLabel();
         
         //design middlepanel
         middlepanel.setLayout(new CardLayout());
@@ -199,26 +207,44 @@ public class Login extends JFrame
         loginpanel.add(guestlogin,g);
         
         //design aboutuspanel
+        insideaboutuspanel.setText("3241.Akash Kale akashale1303@gmail.com\n3242.Anuj Kanetkar anujkanetkar@gmail.com\n3256 Shriniwas Nayak shriniwasnayak1@gmail.com");
+        
+        
+        aboutuspanel.setLayout(new BorderLayout());
+        aboutuspanel.add(insideaboutuspanel , BorderLayout.CENTER);
         
         //design contactuspanel
+        insidecontactpanel.setText("For any queries contact us on: \n landrecorddigitization@gmail.com");
+        
+        contactuspanel.setLayout(new BorderLayout());
+        contactuspanel.add(insidecontactpanel , BorderLayout.CENTER);
         
         //adding cards to middlepanel
         middlepanel.add(choicepanel,"card1");
         middlepanel.add(loginpanel,"card2");
+        middlepanel.add(aboutuspanel,"card3");
+        middlepanel.add(contactuspanel,"card4");
         
         //bottom panel variables
         bottompanel = new JPanel();
-        conf_server = new JLabel();
-       
+        gotohome = new JLabel();
+        settings  = new JLabel(" Settings ");
+        
         bottompanel.setPreferredSize(new Dimension(0, 50));
         bottompanel.setBackground(new Color(52,  69, 150));
         bottompanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 40, 10));
         
-        conf_server.setText("Configure Server");
-        conf_server.setForeground(new Color(255, 255, 255));
-        conf_server.setFont(new Font(Font.SANS_SERIF, Font.PLAIN , 18));
+        gotohome.setText("Go To Home");
+        gotohome.setForeground(new Color(255, 255, 255));
+        gotohome.setFont(new Font(Font.SANS_SERIF, Font.PLAIN , 18));
+        gotohome.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         
-        bottompanel.add(conf_server);
+        settings.setForeground(Color.WHITE);
+        settings.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 18));
+        settings.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        
+        bottompanel.add(gotohome);
+        bottompanel.add(settings);
         
         //set JFrame Layout and add components
         setLayout(new BorderLayout());
@@ -262,12 +288,40 @@ public class Login extends JFrame
             }
         });
         
-        conf_server.addMouseListener(new MouseAdapter() 
+        gotohome.addMouseListener(new MouseAdapter() 
         {
             public void mouseClicked(MouseEvent me)
             {
-                
+                CardLayout c = (CardLayout) middlepanel.getLayout();
+                c.show(middlepanel, "card1");
             }
+        });
+        
+        //settings clicked mouse listener
+        settings.addMouseListener(new MouseAdapter() 
+        {
+            public void mouseClicked(MouseEvent me)
+            {
+             getdbdata();
+            }
+        });
+        
+        aboutuslabel.addMouseListener(new MouseAdapter() 
+        {
+            public void mouseClicked(MouseEvent me)
+            {
+                CardLayout c = (CardLayout) middlepanel.getLayout();
+                c.show(middlepanel, "card3");
+            }
+        });
+        
+        contactuslabel.addMouseListener(new MouseAdapter() 
+        {
+              public void mouseClicked(MouseEvent me)
+              {
+                  CardLayout c = (CardLayout) middlepanel.getLayout();
+                  c.show(middlepanel, "card4");
+              }
         });
     }
     
@@ -323,6 +377,82 @@ public class Login extends JFrame
         password.setText("");
                
         Server.closeConnection();
+    }
+    
+    void getdbdata()
+    {
+	JDialog d = new JDialog();
+	
+	JPanel p = new JPanel();
+	p.setLayout(new GridLayout(0,2));
+		
+	JPanel p1 = new JPanel();
+		
+	JLabel iplabel = new JLabel("IP Address" ,JLabel.CENTER);
+        JLabel userlabel = new JLabel("Username",JLabel.CENTER);
+	JLabel dblabel = new JLabel("Database Name",JLabel.CENTER);
+	JLabel pwdlabel = new JLabel("Database Password",JLabel.CENTER);
+	
+	JTextField ip = new JTextField();
+	JTextField username = new JTextField();
+        JTextField db = new JTextField();
+	JTextField pwd = new JTextField();
+	
+	JCheckBox check = new JCheckBox("  Initialize this PC with tables  ");		
+
+	JButton submit  = new JButton("Submit");
+	p.setLayout(new GridLayout(0,2,10,10));
+	p.add(iplabel);
+	p.add(ip);
+        
+        p.add(userlabel);
+        p.add(username);
+	p.add(dblabel);
+	p.add(db);
+	p.add(pwdlabel);
+	p.add(pwd);
+
+	p1.add(check);	
+	p1.add(submit);
+	
+	d.setLayout(new BorderLayout());
+	d.add(p,BorderLayout.CENTER);
+	
+	d.add(p1,BorderLayout.PAGE_END);
+	
+	submit.addActionListener(new ActionListener()
+	{
+        	public void actionPerformed(ActionEvent a)
+		{
+                    String var_ip = ip.getText();
+                    String var_user = username.getText();
+                    String var_dbname = db.getText();
+                    String var_dbpwd = pwd.getText();
+                    String str = var_ip+","+var_user+","+var_dbname+","+var_dbpwd;
+                    try(FileWriter f = new FileWriter("ip.txt");)
+		    {	
+                        char buffer[] = str.toCharArray();
+                        f.write(buffer);
+                    }
+		    catch(Exception e)
+		    {
+                        JOptionPane.showMessageDialog(null, "Error writing file");
+		    }
+		    if(check.isSelected())
+		    {
+			Server.connectToDB();
+                        Server.initialize();
+                        Server.closeConnection();
+		    }
+                    d.dispose();
+		}
+	});
+
+	d.setVisible(true);
+	d.setSize(350,220);
+	d.setLocation(480,250);
+	d.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        
     }
     
     public static void main(String args[])

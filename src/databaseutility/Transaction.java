@@ -34,54 +34,58 @@ public class Transaction
         landid = Integer.parseInt(lid);
     }
     
-    public String checkSellerCount()
+    
+    public String checkSellerValidity(Vector<String> sellerPANs)
     {
-        String str = new String();
-        try 
+        String sql = "select PAN, RegistrationID from LandOwners where LandID = ? AND OwnerStatus = 'Current'";
+        
+        try
         {
-            PreparedStatement ps = Server.conn.prepareStatement("select count(RegistrationID) as cntregid,RegistrationID from LandOwners where LandID = ? AND OwnerStatus = 'Current' group by RegistrationID");
+            PreparedStatement ps = conn.prepareStatement(sql);
             ps.setInt(1, landid);
+            
             ResultSet rs = ps.executeQuery();
-            if(rs.next())
+            
+            String oldregid = new String();
+            while(rs.next())
             {
-                str = rs.getString("cntregid");
-                str += ",";
-                str += rs.getString("RegistrationID");
+                String pan = rs.getString("PAN");
+                oldregid = null;
+                for(String s : sellerPANs)
+                {
+                    if(pan.equals(s))
+                    {
+                        oldregid = rs.getString("RegistrationID");
+                        break;
+                    }
+                }
+                if(oldregid == null)
+                {
+                    return oldregid;
+                }
+                
             }
-            else
-            {
-                str = "ERROR";
-            }
-        } 
-        catch (SQLException ex) 
-        {
+            
+            return oldregid;
         }
-        return str;
+        
+        catch(SQLException sqe)
+        {
+            return null;
+        }
+        
     }
     
     public int register(String oldregid , String price)
     {
         String sql = "insert into Registration values(?,?,?,?,?)";
-        String helperquery = "select RegistrationID from Registration order by RegistrationID desc";
+        
         try 
         {
             PreparedStatement ps = conn.prepareStatement(sql);
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(helperquery);
-        
-           //need to solve this
-            int regid = -1;
-            if(rs.first())
-            {
-                regid = rs.getInt("RegistrationID");
-                regid++;
-                ps.setInt(1, regid); 
-            }
-            else
-            {
-                //send back to login ie cae of empty db
-            }
-            
+
+            ps.setString(1, null);
+           
             long millis = System.currentTimeMillis();
             Date date = new Date(millis);
 
@@ -91,23 +95,33 @@ public class Transaction
             ps.setDouble(5, Double.parseDouble(price));
 
             ps.executeUpdate();
+            
+            String helperquery = "select max(RegistrationID) as maxregid from Registration";
+            Statement stmt = conn.createStatement();
+           
+            ResultSet rs = stmt.executeQuery(helperquery);
+   
+            int newregid = -1;
+            if(rs.next())
+            {
+                newregid= rs.getInt("maxregid");
+            }
+            return newregid;
+        }
         
-            return regid;
-        } 
         catch (SQLException ex) 
         {
             //TODO need to resolve this 
             return -1;
         }
-        
-        
     }
-    public void addOwners(String []buyerpans ,String []buyershares,String newregid)
-    {
+   
+    public void addOwners(Vector<String> buyerpans, Vector<String> buyershares, String newregid)
+   {
         try
         {
             //update current owners to previous
-            String sql = "update LandOwners set OwnerStatus = 'Previous' where LandID = ? AND OwnerStatus='Currrent'";
+            String sql = "update LandOwners set OwnerStatus = 'Previous' where LandID = ? AND OwnerStatus = 'Current'";
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setInt(1, landid);
             ps.executeUpdate();
@@ -116,15 +130,15 @@ public class Transaction
             sql = "insert into LandOwners values(?,?,?,?,?)";
             ps = conn.prepareStatement(sql);
             int i = 0;
-            while(i < buyerpans.length)
+            while(i < buyerpans.size())
             {
-                ps.setInt(1, Integer.parseInt(buyerpans[i]));
+                ps.setString(1, buyerpans.elementAt(i));
                 ps.setInt(2, landid);
-                ps.setInt(3, Integer.parseInt(buyershares[i]));
+                ps.setFloat(3, Float.parseFloat(buyershares.elementAt(i)));
                 ps.setString(4, "Current");
-                ps.setString(5, Integer.parseInt(newregid));
+                ps.setInt(5, Integer.parseInt(newregid));
                 ps.executeUpdate();
-                ++i;
+                i++;
             }
         } 
         catch (SQLException ex) 
