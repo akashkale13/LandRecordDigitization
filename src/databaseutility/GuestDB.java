@@ -7,6 +7,7 @@ package databaseutility;
 
 import java.sql.*;
 import java.util.Vector;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -24,56 +25,49 @@ public class GuestDB
         
         try
         {
-            if(!(LandID.equals("")))
-            {
-                sql = "select reg.LandID,ld.State,ld.City,ld.LandType,ld.Area,reg.Price from Registration reg INNER JOIN LandOwners lo ON reg.RegistrationID = lo.RegistrationID INNER JOIN LandDetails ld ON ld.landID = reg.LandID where lo.OwnerStatus = 'Current'" +" AND ld.LandID = ?" + " GROUP BY reg.RegistrationID;";
-
-                ps = Server.conn.prepareStatement(sql);
-                
-                ps.setInt(1, Integer.parseInt(LandID));
-            }
-            
-            else
-            {
-                sql = "select reg.LandID,ld.State,ld.City,ld.LandType,ld.Area,reg.Price from Registration reg INNER JOIN LandOwners lo ON reg.RegistrationID = lo.RegistrationID INNER JOIN LandDetails ld ON ld.landID = reg.LandID where lo.OwnerStatus = 'Current'" + " AND (ld.State = ? OR ? = '')" + " AND (ld.City = ? OR ? = '')" + " AND (ld.LandType = ? OR ? = '')" +" AND ((ld.Area BETWEEN ? AND ?) OR (? = ''))" + " AND ((reg.Price BETWEEN ? AND ?) OR (? = ''))"+ "GROUP BY reg.RegistrationID;";
+                sql = "select l.LandID,l.Area,l.LandType,l.Address,l.City,l.State,a.Price from LandDetails l left outer join (select LandID,max(Price) as Price from Registration group by LandID) a on l.LandID=a.LandID where (l.LandID = ? or ? = '') and (l.State = ? or ? = '') and (l.City = ? or ? = '') and (l.LandType = ?  or ? = '') and (l.area between ? and ? or ? = '') and (a.Price between ? and ? or ? = '');"; 
             
                 ps = Server.conn.prepareStatement(sql);
           
-                ps.setString(1,State);
-                ps.setString(2,State);
-                ps.setString(3,City);
-                ps.setString(4,City);
-                ps.setString(5,Type);
-                ps.setString(6,Type);
+                ps.setString(3,State);
+                ps.setString(4,State);
+                ps.setString(5,City);
+                ps.setString(6,City);
+                ps.setString(7,Type);
+                ps.setString(8,Type);
                 
-                if(!(Areamin.equals("")))
-                {
-                    ps.setDouble(7,Double.parseDouble(Areamin));
-                    ps.setDouble(8,Double.parseDouble(Areamax));
-                    ps.setDouble(9,Double.parseDouble(Areamin));
-                }
+                ps.setString(1, LandID);
+                ps.setString(2, LandID);
                 
-                else
+                if((Areamin.equals("")))
                 {
-                    ps.setString(7,"");
-                    ps.setString(8,"");
-                    ps.setString(9,"");
-                }
-                
-                if(!(Pricemin.equals("")))
-                {
-                    ps.setDouble(10,Double.parseDouble(Pricemin));
-                    ps.setDouble(11,Double.parseDouble(Pricemax));
-                    ps.setDouble(12,Double.parseDouble(Pricemin));
-                }
-                
-                else
-                {
-                    ps.setString(10,"");
+                    ps.setDouble(9,java.sql.Types.NULL);
+                    ps.setDouble(10,java.sql.Types.NULL);
                     ps.setString(11,"");
-                    ps.setString(12,"");
+                }
+                
+                else
+                {
+                    ps.setDouble(9,Double.parseDouble(Areamin));
+                    ps.setDouble(10 ,Double.parseDouble(Areamax));
+                    ps.setDouble(11,Double.parseDouble(Areamin));
+                }
+                
+                if((Pricemin.equals("")))
+                {
+                    ps.setDouble(12,java.sql.Types.NULL);
+                    ps.setDouble(13,java.sql.Types.NULL);
+                    ps.setString(14,"");
+                }
+                
+                else
+                {
+                    ps.setDouble(12,Double.parseDouble(Pricemin));
+                    ps.setDouble(13 ,Double.parseDouble(Pricemax));
+                    ps.setDouble(14,Double.parseDouble(Pricemin));
                 }   
-            }
+            
+            JOptionPane.showMessageDialog(null, ps.toString());
             rs = ps.executeQuery();
             ans = new Vector<Vector<String>>();
 	    	
