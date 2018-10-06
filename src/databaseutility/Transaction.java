@@ -116,7 +116,7 @@ public class Transaction
         }
     }
    
-    public void addOwners(Vector<String> buyerpans, Vector<String> buyershares, String newregid)
+    public void addOwners(Vector<String> buyerpans, Vector<String> buyershares, String newregid) throws SQLException
    {
         try
         {
@@ -143,6 +143,8 @@ public class Transaction
         } 
         catch (SQLException ex) 
         {
+            JOptionPane.showMessageDialog(null, ex.toString() ,"Error",JOptionPane.ERROR_MESSAGE);
+            throw new SQLException("Failed to add Owners");
         }
     }    
 }

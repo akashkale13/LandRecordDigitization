@@ -302,7 +302,7 @@ public class Guest extends JFrame
         middlepanel.setLayout(new BorderLayout());
         middlepanel.add(choicepanel , BorderLayout.LINE_START);
         
-        searchtable = new JTable(new Object[][]{},new String[] {"Land ID","State","City","Type","Area","Cost"});
+        searchtable = new JTable(new DefaultTableModel(new Object[][]{},new String[] {"Land ID","State","City","Type","Area","Cost"}));
         searchtable.getTableHeader().setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 18));
         searchtable.setFont(new Font(Font.SANS_SERIF,Font.PLAIN,16));
         JScrollPane sp = new JScrollPane(searchtable);
@@ -377,21 +377,64 @@ public class Guest extends JFrame
         {
             public void actionPerformed(ActionEvent e) 
             {
-                Server.connectToDB();
-                ResultSet rs = GuestDB.SearchRecords();
-                DefaultTableModel m = (DefaultTableModel) searchtable.getModel();
-                Vector <String> v = new Vector<String>();
-                try {
-                    while(rs.next())
-                    {
-                      
-                        //m.addRow(v);
-                    }
-                } 
-                catch (SQLException ex) 
+                int p = searchtable.getRowCount();
+                while(p>0)
                 {
+                    ((DefaultTableModel)searchtable.getModel()).removeRow(p-1);
+                    p--;
                 }
+                
+                Server.connectToDB();
+                
+                String LandID = landid.getText();
+                String str = state.getSelectedItem().toString();
+                String State = "";
+                if(!(str.equals("")))
+                    State = str.substring(3);
+                String City = (String) city.getSelectedItem();
+                String Type = (String) type.getSelectedItem();
+                String Areamin = areamin.getText();
+                String Areamax = areamax.getText();
+                String Pricemin = costmin.getText();
+                String Pricemax = costmax.getText();
+                
+                Vector<Vector<String>> ans = GuestDB.SearchRecords(LandID,State,City,Type,Areamin,Areamax,Pricemin,Pricemax);
+
+                try 
+                {
+                    if(ans.isEmpty())
+                    {
+                        JOptionPane.showMessageDialog(null, "No Records Found");
+                    }
+
+                    else
+                    {
+                        DefaultTableModel m = (DefaultTableModel) searchtable.getModel();
+                        for(Vector<String> temp_record_read : ans)
+                        {
+                            m.addRow(temp_record_read);
+                        }
+                    }    
+                }
+
+                catch(Exception excep)
+                {
+                    JOptionPane.showMessageDialog(null, excep.toString() , "Error", JOptionPane.ERROR_MESSAGE);
+                }
+                
+                landid.setText("");
+                state.setSelectedIndex(0);
+                city.removeAllItems();
+                city.addItem("");
+                city.setEnabled(false);
+                type.setSelectedIndex(0);
+                areamin.setText("");
+                areamax.setText("");
+                costmin.setText("");
+                costmax.setText("");
+                
                 Server.closeConnection();
+                
             }
         });
      

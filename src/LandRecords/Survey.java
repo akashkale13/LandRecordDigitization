@@ -11,9 +11,12 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.io.*;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.border.EtchedBorder;
 
 /**
@@ -294,9 +297,9 @@ public class Survey extends JFrame
                     Vector<String> buyerpan = new Vector<String>();
                     Vector<String> buyershare = new Vector<String>();
                     buyershare.add("100");
-                    buyerpan.add("0");
+                    buyerpan.add("1");
                     Transaction t = new Transaction(landid.getText());
-                    t.addOwners(buyerpan , buyershare ,"0");
+                    t.addOwners(buyerpan , buyershare ,"1");
                     SurveyDB.addLand(hm);
                     Server.conn.commit();
                     Server.closeConnection();
@@ -311,6 +314,13 @@ public class Survey extends JFrame
                 }
                 catch(Exception e)
                 {
+                    try 
+                    {
+                        Server.conn.rollback();
+                    } 
+                    catch (SQLException ex) 
+                    {
+                    }
                     JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 }
             }

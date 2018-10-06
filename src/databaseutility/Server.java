@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.sql.*;
 import javax.swing.*;
 import java.io.*;
+import static java.sql.JDBCType.NULL;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -80,11 +81,12 @@ public class Server
             st.executeUpdate("INSERT INTO Login VALUES ('REG01','REG01PASS'),('SUR01','SUR01PASS'),('REG02','REG02PASS'),('SUR02','SUR02PASS')");
             
             st.executeUpdate("DROP TABLE IF EXISTS Person");
-            st.executeUpdate("CREATE TABLE Person(PAN varchar(10) NOT NULL,AadharNo bigint(12) NOT NULL,Name varchar(20) DEFAULT NULL,Bank varchar(20) DEFAULT NULL,Account_No bigint(20) DEFAULT NULL,Email varchar(30) DEFAULT NULL,Phone bigint(10) DEFAULT NULL,PRIMARY KEY (PAN))");
+            st.executeUpdate("CREATE TABLE Person(PAN varchar(10) NOT NULL,AadharNo bigint(12) NULL,Name varchar(20) DEFAULT NULL,Bank varchar(20) DEFAULT NULL,Account_No bigint(20) DEFAULT NULL,Email varchar(30) DEFAULT NULL,Phone bigint(10) DEFAULT NULL,PRIMARY KEY (PAN))");
+            st.executeUpdate("INSERT INTO Person values('1',NULL,'Government',NULL,NULL,NULL,NULL)");
             
             st.executeUpdate("DROP TABLE IF EXISTS Registration");
             st.executeUpdate("CREATE TABLE Registration(RegistrationID int(11) NOT NULL AUTO_INCREMENT,LandID int(11) DEFAULT NULL,DateOfTransaction date DEFAULT NULL,Seller int(11) DEFAULT NULL,Price double DEFAULT NULL,PRIMARY KEY (RegistrationID),KEY LandID (LandID),CONSTRAINT Registration_ibfk_1 FOREIGN KEY (LandID) REFERENCES LandDetails (LandID) ON DELETE CASCADE ON UPDATE CASCADE)");
-            st.executeUpdate("INSERT INTO Registration VALUES(0,NULL,'1950-01-26',NULL,NULL)");
+            st.executeUpdate("INSERT INTO Registration VALUES(1,NULL,'1950-01-26',NULL,NULL)");
             
             st.executeUpdate("SET FOREIGN_KEY_CHECKS = 1");
            
@@ -196,7 +198,14 @@ public class Server
         {
             PreparedStatement ps = conn.prepareStatement("insert into Person values(?,?,?,?,?,?,?)");
             ps.setString(1, (String)m.get("PAN"));
-            ps.setLong(2, Long.parseLong(aadhar));
+            if(aadhar.equals(""))
+            {
+            ps.setNull(2, java.sql.Types.INTEGER);
+            }
+            else
+            {
+            ps.setLong(2, Long.parseLong(aadhar));    
+            }
             ps.setString(3, (String)m.get("Name"));
             ps.setString(4, (String)m.get("Bank"));
             ps.setLong(5, Long.parseLong((String)m.get("Account")));

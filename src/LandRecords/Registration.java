@@ -509,15 +509,17 @@ public class Registration extends JFrame
                             price.setText("");
                             
                             int p = sellertable.getRowCount();
-                            while(p >= 0)
+                            while(p > 0)
                             {
                                 ((DefaultTableModel)sellertable.getModel()).removeRow(p-1);
+                                p--;
                             }
                             
                             p = buyertable.getRowCount();
-                            while(p >= 0)
+                            while(p > 0)
                             {
                                 ((DefaultTableModel)buyertable.getModel()).removeRow(p-1);
+                                p--;
                             }
                                     
                         } 
@@ -625,7 +627,7 @@ public class Registration extends JFrame
                     Server.connectToDB();
                     Server.addPerson(h , var_aadhar);
                     Server.closeConnection();
-                    JOptionPane.showMessageDialog(null, "Person data added successfully" , "Information" ,JOptionPane.INFORMATION_MESSAGE);
+                    //JOptionPane.showMessageDialog(null, "Person data added successfully" , "Information" ,JOptionPane.INFORMATION_MESSAGE);
                 }
                 else
                 {
